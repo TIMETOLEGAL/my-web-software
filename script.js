@@ -1,32 +1,107 @@
-// Dummy users (will be replaced by Google Sheet later)
-const users = [
-  { email: "director@ttl.com", password: "1234", role: "director" },
-  { email: "sales@ttl.com", password: "1234", role: "sales" },
-  { email: "back@ttl.com", password: "1234", role: "back" }
-];
 
-document.addEventListener("DOMContentLoaded", () => {
-  const loginForm = document.querySelector("form");
-  if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
+// Google Sheets Integration using Web App URL
+const API_URL = "https://script.google.com/macros/s/AKfycby46orkSSxefSTu75D0A9CIR7il9TOJrxgz-hEvNJi7ocaima_JAX1CkORvCmwzfJ1J/exec";
 
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
+let currentUser = null;
+let currentRole = null;
 
-      const user = users.find(
-        (u) => u.email === email && u.password === password
-      );
+function login() {
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
-      if (!user) {
-        alert("Invalid email or password!");
+  fetch(API_URL, {
+    method: "POST",
+    body: new URLSearchParams({ action: "getUsers" })
+  })
+    .then(res => res.text())
+    .then(text => {
+      const rows = JSON.parse(text);
+      const index = rows.findIndex(r => r[0] === user && r[1] === pass);
+      if (index === -1) {
+        document.getElementById("login-error").textContent = "Invalid credentials";
         return;
       }
+      const role = rows[index][2];
+      const approved = rows[index][3] === "true";
 
-      // Redirect based on role
-      if (user.role === "director") window.location.href = "director-dashboard.html";
-      else if (user.role === "sales") window.location.href = "sales-dashboard.html";
-      else if (user.role === "back") window.location.href = "back-dashboard.html";
+      currentUser = user;
+      currentRole = role;
+
+      if (!approved) {
+        showScreen("approval-screen");
+      } else {
+        document.getElementById("role").textContent = role;
+        showScreen("dashboard");
+        if (role === "Director") renderAdminPanel();
+        if (role === "Back") loadTasks();
+      }
     });
-  }
-});
+}
+
+function register() {
+  const user = document.getElementById("reg-username").value.trim();
+  const pass = document.getElementById("reg-password").value.trim();
+  const role = document.getElementById("reg-role").value;
+
+  fetch(API_URL, {
+    method: "POST",
+    body: new URLSearchParams({
+      action: "registerUser",
+      username: user,
+      password: pass,
+      role: role
+    })
+  })
+    .then(res => res.text())
+    .then(txt => {
+      if (txt === "success") {
+        document.getElementById("register-success").textContent = "Registration successful! Awaiting Director approval.";
+      } else {
+        document.getElementById("register-success").textContent = "Error occurred.";
+      }
+    });
+}
+
+function uploadTask() {
+  const category = document.getElementById("task-category").value;
+  const client = document.getElementById("client-name").value;
+  const desc = document.getElementById("task-desc").value;
+  const date = document.getElementById("deadline").value;
+
+  fetch(API_URL, {
+    method: "POST",
+    body: new URLSearchParams({
+      action: "uploadTask",
+      category: category,
+      client_name: client,
+      task_description: desc,
+      deadline: date,
+      assigned_by: currentUser || "Anonymous"
+    })
+  })
+    .then(res => res.text())
+    .then(txt => {
+      if (txt === "task_saved") {
+        alert("Task uploaded successfully.");
+        loadTasks();
+      }
+    });
+}
+
+function loadTasks() {
+  fetch(API_URL, {
+    method: "POST",
+    body: new URLSearchParams({ action: "getTasks" })
+  })
+    .then(res => res.text())
+    .then(txt => {
+      const rows = JSON.parse(txt);
+      const container = document.getElementById("task-list");
+      container.innerHTML = "";
+      rows.slice(1).forEach(task => {
+        const div = document.createElement("div");
+        div.innerHTML = `<b>${task[0]}</b> - ${task[1]} (${task[2]}) - Due: ${task[3]}`;
+        container.appendChild(div);
+      });
+    });
+}
