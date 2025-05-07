@@ -1,28 +1,73 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Time to Legal | Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time to Legal - Work Management</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="app">
+    <div id="login-screen" class="screen">
+      <h2>Login to Time to Legal</h2>
+      <input type="text" id="username" placeholder="User ID" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <p id="login-error"></p>
+      <span class="toggle-link" onclick="toggleRegister(true)">New user? Register here</span>
+    </div>
 
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <div class="top-left">📞 +91-9999999999 | ✉️ info@timetolegal.com</div>
-    <div class="top-right">
-      <a href="login.html" class="login-btn">Login</a>
+    <div id="register-screen" class="screen hidden">
+      <h2>Register Account</h2>
+      <input type="text" id="reg-username" placeholder="Choose a User ID" />
+      <input type="password" id="reg-password" placeholder="Create a Password" />
+      <select id="reg-role">
+        <option value="Sales">Sales</option>
+        <option value="Back">Back</option>
+      </select>
+      <button onclick="register()">Submit Registration</button>
+      <p id="register-success"></p>
+      <span class="toggle-link" onclick="toggleRegister(false)">Back to Login</span>
+    </div>
+
+    <div id="approval-screen" class="screen hidden">
+      <h3>Your account is pending approval by Director.</h3>
+    </div>
+
+    <div id="dashboard" class="screen hidden">
+      <h1>Welcome, <span id="role"></span></h1>
+      <nav>
+        <button onclick="showSection('upload')">Upload Task</button>
+        <button onclick="showSection('tasks')">My Tasks</button>
+        <button onclick="showSection('analytics')">Analytics</button>
+      </nav>
+
+      <div id="upload" class="section hidden">
+        <h2>Upload Work</h2>
+        <select id="task-category">
+          <option>NGO Registration</option>
+          <option>Microfinance</option>
+          <option>CSR</option>
+        </select>
+        <input type="text" id="client-name" placeholder="Client Name" />
+        <input type="text" id="task-desc" placeholder="Task Description" />
+        <input type="date" id="deadline" />
+        <button onclick="uploadTask()">Upload</button>
+      </div>
+
+      <div id="tasks" class="section hidden">
+        <h2>Assigned Tasks</h2>
+        <div id="task-list"></div>
+      </div>
+
+      <div id="analytics" class="section hidden">
+        <h2>Work Summary</h2>
+        <canvas id="chart" width="300" height="150"></canvas>
+      </div>
     </div>
   </div>
 
-  <!-- Header Section -->
-  <header class="hero">
-    <div class="hero-content">
-      <h1>Welcome to Time to Legal</h1>
-      <p>Your trusted partner for legal registrations, NGO setup, GST filings & more.</p>
-    </div>
-  </header>
-
+  <script src="script.js"></script>
 </body>
 </html>
