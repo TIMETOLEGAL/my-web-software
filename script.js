@@ -1,9 +1,24 @@
+<!-- JavaScript file with working toggle for register screen -->
 
-// Google Sheets Integration using Web App URL
+// CSS styles and other logic stay the same
+
 const API_URL = "https://script.google.com/macros/s/AKfycby46orkSSxefSTu75D0A9CIR7il9TOJrxgz-hEvNJi7ocaima_JAX1CkORvCmwzfJ1J/exec";
 
 let currentUser = null;
 let currentRole = null;
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function toggleRegister(show) {
+  if (show) {
+    showScreen("register-screen");
+  } else {
+    showScreen("login-screen");
+  }
+}
 
 function login() {
   const user = document.getElementById("username").value.trim();
