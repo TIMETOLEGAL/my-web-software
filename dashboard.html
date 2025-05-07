@@ -1,0 +1,57 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time to Legal - Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Task Dashboard</h1>
+      <nav>
+        <a href="index.html">Add Task</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+    </header>
+
+    <table id="taskTable">
+      <thead>
+        <tr>
+          <th>Task Type</th>
+          <th>Client Name</th>
+          <th>Description</th>
+          <th>Deadline</th>
+          <th>Entered By</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamic rows will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const tableBody = document.querySelector("#taskTable tbody");
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+      tasks.forEach(task => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${task.taskType}</td>
+          <td>${task.clientName}</td>
+          <td>${task.description}</td>
+          <td>${task.deadline}</td>
+          <td>${task.enteredBy}</td>
+          <td>${task.status}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    });
+  </script>
+</body>
+</html>
