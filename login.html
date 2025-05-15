@@ -1,27 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Time to Legal</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login & Register | Time to Legal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 500px;
+    }
+    h2 {
+      color: #b80000;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #b80000;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+    }
+    button:hover {
+      background-color: #a00000;
+    }
+    .toggle {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .toggle a {
+      color: #b80000;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
 </head>
+
 <body>
-
-  <div class="login-container">
-    <h2>Login to Your Account</h2>
-    <form>
-      <label for="email">Email ID</label>
-      <input type="email" id="email" placeholder="Enter your email" required>
-
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Enter your password" required>
-
-      <button type="submit">Login</button>
-
-      <p class="register-link">New user? <a href="register.html">Register here</a></p>
-    </form>
+  <div class="container" id="login-container">
+    <h2>Login</h2>
+    <div class="form-group">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" placeholder="Enter your approved email" />
+    </div>
+    <div class="form-group">
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" placeholder="Enter your password" />
+    </div>
+    <button onclick="loginUser()">Login</button>
+    <div class="toggle">
+      New user? <a href="#" onclick="toggleForm('register')">Register here</a>
+    </div>
   </div>
 
+  <div class="container" id="register-container" style="display: none;">
+    <h2>Register</h2>
+    <div class="form-group">
+      <label for="role">Select Role</label>
+      <select id="role">
+        <option value="">-- Select --</option>
+        <option value="sales">Sales Team</option>
+        <option value="back">Back Team</option>
+        <option value="director">Director</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="register-email">Email</label>
+      <input type="email" id="register-email" placeholder="Enter your email" />
+    </div>
+    <div class="form-group">
+      <label for="register-password">Password</label>
+      <input type="password" id="register-password" placeholder="Create a password" />
+    </div>
+    <button onclick="registerUser()">Submit Request</button>
+    <div class="toggle">
+      Already have an account? <a href="#" onclick="toggleForm('login')">Login here</a>
+    </div>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbytXBhdhae0BCSweDt8s6aYO7MoFfXv4ZjHrG7ONC8pIsR3s9oe5GfJ7ADzpRPrSkHt/exec";
+
+    function toggleForm(mode) {
+      document.getElementById('login-container').style.display = mode === 'login' ? 'block' : 'none';
+      document.getElementById('register-container').style.display = mode === 'register' ? 'block' : 'none';
+    }
+
+    function registerUser() {
+      const email = document.getElementById("register-email").value;
+      const password = document.getElementById("register-password").value;
+      const role = document.getElementById("role").value;
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action: "register",
+          email,
+          password,
+          role
+        })
+      })
+      .then(res => res.text())
+      .then(msg => alert(msg))
+      .catch(err => alert("Error: " + err));
+    }
+
+    function loginUser() {
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action: "login",
+          email,
+          password
+        })
+      })
+      .then(res => res.text())
+      .then(response => {
+        const data = JSON.parse(response);
+        if (data.status === "success") {
+          alert("Login successful. Redirecting to dashboard...");
+          window.location.href = "dashboard.html?role=" + data.role;
+        } else if (data.status === "pending") {
+          alert("Your registration is still pending approval.");
+        } else {
+          alert("Invalid credentials. Please try again.");
+        }
+      })
+      .catch(err => alert("Login failed: " + err));
+    }
+  </script>
 </body>
 </html>
